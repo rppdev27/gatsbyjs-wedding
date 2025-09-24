@@ -28,35 +28,9 @@ const WeddingPage = () => {
     setSelectedImage(null)
   }
 
-  // Handle Netlify form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setFormStatus('submitting')
-
-    const form = e.target
-    const formData = new FormData(form)
-
-    try {
-      const response = await fetch('/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(formData).toString(),
-      })
-
-      if (response.ok) {
-        setFormStatus('success')
-        form.reset() // Clear the form
-        // Auto-hide success message after 5 seconds
-        setTimeout(() => setFormStatus(null), 5000)
-      } else {
-        throw new Error('Form submission failed')
-      }
-    } catch (error) {
-      console.error('Error submitting form:', error)
-      setFormStatus('error')
-      // Auto-hide error message after 5 seconds
-      setTimeout(() => setFormStatus(null), 5000)
-    }
+  // No JavaScript handling - let Netlify handle everything
+  const handleSubmit = (e) => {
+    // Do nothing - let the form submit naturally
   }
 
   // Save the date function
@@ -197,7 +171,6 @@ Location: Rose Garden Chapel, San Francisco`
           )}
 
           <form 
-            onSubmit={handleSubmit} 
             className="guestbook-form"
             name="wedding-guestbook"
             method="POST"
