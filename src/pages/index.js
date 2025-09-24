@@ -251,7 +251,7 @@ Location: Rose Garden Chapel, San Francisco`
             </div>
           </div>
           <div className="footer-bottom">
-            <p>&copy; 2024 Sarah & Michael Wedding. Made with love.</p>
+            <p>&copy; 2025 Sarah & Michael Wedding. Made with love.</p>
           </div>
         </div>
       </footer>
