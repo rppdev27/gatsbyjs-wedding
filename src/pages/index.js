@@ -7,6 +7,7 @@ const WeddingPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
   const [formStatus, setFormStatus] = useState(null) // 'submitting', 'success', 'error'
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
 
   // Mock gallery images
   const galleryImages = [
@@ -28,9 +29,44 @@ const WeddingPage = () => {
     setSelectedImage(null)
   }
 
-  // No JavaScript handling - let Netlify handle everything
-  const handleSubmit = (e) => {
-    // Do nothing - let the form submit naturally
+  // Handle form submission with success modal
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setFormStatus('submitting')
+
+    const form = e.target
+    const formData = new FormData(form)
+
+    try {
+      const response = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(formData).toString(),
+      })
+
+      if (response.ok) {
+        setFormStatus('success')
+        setShowSuccessModal(true)
+        form.reset()
+        // Auto-hide success modal after 5 seconds
+        setTimeout(() => {
+          setShowSuccessModal(false)
+          setFormStatus(null)
+        }, 5000)
+      } else {
+        throw new Error('Form submission failed')
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      setFormStatus('error')
+      setTimeout(() => setFormStatus(null), 5000)
+    }
+  }
+
+  // Close success modal
+  const closeSuccessModal = () => {
+    setShowSuccessModal(false)
+    setFormStatus(null)
   }
 
   // Save the date function
@@ -113,6 +149,21 @@ Location: Rose Garden Chapel, San Francisco`
         </div>
       </section>
 
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="modal-overlay" onClick={closeSuccessModal}>
+          <div className="success-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="success-icon">💕</div>
+            <h2>Thank You!</h2>
+            <p>Your beautiful message has been sent to Sarah & Michael.</p>
+            <p>They'll be so happy to read your wishes!</p>
+            <button className="modal-close-button" onClick={closeSuccessModal}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Gallery Modal */}
       {isModalOpen && (
         <div className="modal-overlay" onClick={closeModal}>
@@ -171,34 +222,59 @@ Location: Rose Garden Chapel, San Francisco`
           )}
 
           <form 
-          className="guestbook-form"
-          name="wedding-guestbook"
-          method="POST"
-          data-netlify="true"
-          netlify-honeypot="bot-field"
-        >
-          <input type="hidden" name="form-name" value="wedding-guestbook" />
-          
-          <p style={{ display: 'none' }}>
-            <label>
-              Don't fill this out: <input name="bot-field" />
-            </label>
-          </p>
+            onSubmit={handleSubmit}
+            className="guestbook-form"
+            name="wedding-guestbook"
+            method="POST"
+            data-netlify="true"
+            netlify-honeypot="bot-field"
+          >
+            {/* Hidden fields for Netlify */}
+            <input type="hidden" name="form-name" value="wedding-guestbook" />
+            {/* Honeypot field for spam prevention */}
+            <div style={{ display: 'none' }}>
+              <label>
+                Don't fill this out if you're human: <input name="bot-field" />
+              </label>
+            </div>
 
-          <div className="form-group">
-            <input type="text" name="name" placeholder="Your Name" required />
-          </div>
-          
-          <div className="form-group">
-            <input type="email" name="email" placeholder="Your Email" />
-          </div>
-          
-          <div className="form-group">
-            <textarea name="message" placeholder="Your message..." rows="4" required></textarea>
-          </div>
-          
-          <button type="submit">Send Message</button>
-        </form>
+            <div className="form-group">
+              <input
+                type="text"
+                name="name"
+                placeholder="Your Name"
+                required
+                disabled={formStatus === 'submitting'}
+              />
+            </div>
+            
+            <div className="form-group">
+              <input
+                type="email"
+                name="email"
+                placeholder="Your Email (optional)"
+                disabled={formStatus === 'submitting'}
+              />
+            </div>
+            
+            <div className="form-group">
+              <textarea
+                name="message"
+                placeholder="Your message to the happy couple..."
+                rows="4"
+                required
+                disabled={formStatus === 'submitting'}
+              />
+            </div>
+            
+            <button 
+              type="submit" 
+              className={`submit-button ${formStatus === 'submitting' ? 'submitting' : ''}`}
+              disabled={formStatus === 'submitting'}
+            >
+              {formStatus === 'submitting' ? 'Sending...' : 'Send Message'}
+            </button>
+          </form>
 
           {/* Sample messages to show what it looks like */}
           <div className="guestbook-messages">
@@ -227,7 +303,7 @@ Location: Rose Garden Chapel, San Francisco`
             </div>
           </div>
           <div className="footer-bottom">
-            <p>&copy; 2025 Sarah & Michael Wedding. Made with love.</p>
+            <p>&copy; 2024 Sarah & Michael Wedding. Made with love.</p>
           </div>
         </div>
       </footer>
