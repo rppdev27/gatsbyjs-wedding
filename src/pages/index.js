@@ -171,58 +171,34 @@ Location: Rose Garden Chapel, San Francisco`
           )}
 
           <form 
-            className="guestbook-form"
-            name="wedding-guestbook"
-            method="POST"
-            data-netlify="true"
-            data-netlify-honeypot="bot-field"
-          >
-            {/* Hidden fields for Netlify */}
-            <input type="hidden" name="form-name" value="wedding-guestbook" />
-            {/* Honeypot field for spam prevention */}
-            <div style={{ display: 'none' }}>
-              <label>
-                Don't fill this out if you're human: <input name="bot-field" />
-              </label>
-            </div>
+          className="guestbook-form"
+          name="wedding-guestbook"
+          method="POST"
+          data-netlify="true"
+          netlify-honeypot="bot-field"
+        >
+          <input type="hidden" name="form-name" value="wedding-guestbook" />
+          
+          <p style={{ display: 'none' }}>
+            <label>
+              Don't fill this out: <input name="bot-field" />
+            </label>
+          </p>
 
-            <div className="form-group">
-              <input
-                type="text"
-                name="name"
-                placeholder="Your Name"
-                required
-                disabled={formStatus === 'submitting'}
-              />
-            </div>
-            
-            <div className="form-group">
-              <input
-                type="email"
-                name="email"
-                placeholder="Your Email (optional)"
-                disabled={formStatus === 'submitting'}
-              />
-            </div>
-            
-            <div className="form-group">
-              <textarea
-                name="message"
-                placeholder="Your message to the happy couple..."
-                rows="4"
-                required
-                disabled={formStatus === 'submitting'}
-              />
-            </div>
-            
-            <button 
-              type="submit" 
-              className={`submit-button ${formStatus === 'submitting' ? 'submitting' : ''}`}
-              disabled={formStatus === 'submitting'}
-            >
-              {formStatus === 'submitting' ? 'Sending...' : 'Send Message'}
-            </button>
-          </form>
+          <div className="form-group">
+            <input type="text" name="name" placeholder="Your Name" required />
+          </div>
+          
+          <div className="form-group">
+            <input type="email" name="email" placeholder="Your Email" />
+          </div>
+          
+          <div className="form-group">
+            <textarea name="message" placeholder="Your message..." rows="4" required></textarea>
+          </div>
+          
+          <button type="submit">Send Message</button>
+        </form>
 
           {/* Sample messages to show what it looks like */}
           <div className="guestbook-messages">
