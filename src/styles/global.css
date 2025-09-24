@@ -1,3 +1,4 @@
+/* src/styles/global.css */
 * {
   margin: 0;
   padding: 0;
@@ -319,6 +320,28 @@ body {
   background: #fff;
 }
 
+/* Form Status Messages */
+.form-message {
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  padding: 1rem;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.form-message.success {
+  background: #d1fae5;
+  border: 2px solid #10b981;
+  color: #065f46;
+}
+
+.form-message.error {
+  background: #fee2e2;
+  border: 2px solid #ef4444;
+  color: #991b1b;
+}
+
 .guestbook-form {
   max-width: 600px;
   margin: 0 auto 3rem;
@@ -349,6 +372,13 @@ body {
   border-color: #7c3aed;
 }
 
+.form-group input:disabled,
+.form-group textarea:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
 .submit-button {
   background: linear-gradient(45deg, #7c3aed, #a855f7);
   color: white;
@@ -359,11 +389,41 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
   width: 100%;
+  position: relative;
 }
 
-.submit-button:hover {
+.submit-button:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(124, 58, 237, 0.3);
+}
+
+.submit-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.submit-button.submitting {
+  background: linear-gradient(45deg, #6b21a8, #8b5cf6);
+}
+
+.submit-button.submitting::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border: 2px solid transparent;
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
 .guestbook-messages {
@@ -466,5 +526,9 @@ body {
   .footer-links {
     flex-direction: column;
     align-items: center;
+  }
+
+  .guestbook-form {
+    padding: 2rem;
   }
 }

@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react"
+// src/pages/index.js
+import React, { useState } from "react"
 import { Helmet } from "react-helmet"
 import "../styles/global.css"
 
 const WeddingPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
-  const [guestbook, setGuestbook] = useState([])
-  const [formData, setFormData] = useState({ name: '', message: '' })
+  const [formStatus, setFormStatus] = useState(null) // 'submitting', 'success', 'error'
 
   // Mock gallery images
   const galleryImages = [
@@ -28,19 +28,35 @@ const WeddingPage = () => {
     setSelectedImage(null)
   }
 
-  const handleSubmit = (e) => {
+  // Handle Netlify form submission
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (formData.name && formData.message) {
-      setGuestbook([...guestbook, { ...formData, id: Date.now() }])
-      setFormData({ name: '', message: '' })
-    }
-  }
+    setFormStatus('submitting')
 
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
+    const form = e.target
+    const formData = new FormData(form)
+
+    try {
+      const response = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(formData).toString(),
+      })
+
+      if (response.ok) {
+        setFormStatus('success')
+        form.reset() // Clear the form
+        // Auto-hide success message after 5 seconds
+        setTimeout(() => setFormStatus(null), 5000)
+      } else {
+        throw new Error('Form submission failed')
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error)
+      setFormStatus('error')
+      // Auto-hide error message after 5 seconds
+      setTimeout(() => setFormStatus(null), 5000)
+    }
   }
 
   // Save the date function
@@ -162,46 +178,91 @@ Location: Rose Garden Chapel, San Francisco`
         </div>
       </section>
 
-      {/* Guestbook Form */}
+      {/* Guestbook Form with Netlify Forms */}
       <section className="guestbook-section">
         <div className="container">
           <h2 className="section-title">Leave us a message</h2>
-          <form onSubmit={handleSubmit} className="guestbook-form">
+          
+          {/* Status Messages */}
+          {formStatus === 'success' && (
+            <div className="form-message success">
+              <p>✅ Thank you! Your message has been sent successfully.</p>
+            </div>
+          )}
+          
+          {formStatus === 'error' && (
+            <div className="form-message error">
+              <p>❌ Sorry, there was an error sending your message. Please try again.</p>
+            </div>
+          )}
+
+          <form 
+            onSubmit={handleSubmit} 
+            className="guestbook-form"
+            name="wedding-guestbook"
+            method="POST"
+            data-netlify="true"
+            data-netlify-honeypot="bot-field"
+          >
+            {/* Hidden fields for Netlify */}
+            <input type="hidden" name="form-name" value="wedding-guestbook" />
+            {/* Honeypot field for spam prevention */}
+            <div style={{ display: 'none' }}>
+              <label>
+                Don't fill this out if you're human: <input name="bot-field" />
+              </label>
+            </div>
+
             <div className="form-group">
               <input
                 type="text"
                 name="name"
                 placeholder="Your Name"
-                value={formData.name}
-                onChange={handleInputChange}
                 required
+                disabled={formStatus === 'submitting'}
               />
             </div>
+            
+            <div className="form-group">
+              <input
+                type="email"
+                name="email"
+                placeholder="Your Email (optional)"
+                disabled={formStatus === 'submitting'}
+              />
+            </div>
+            
             <div className="form-group">
               <textarea
                 name="message"
                 placeholder="Your message to the happy couple..."
                 rows="4"
-                value={formData.message}
-                onChange={handleInputChange}
                 required
+                disabled={formStatus === 'submitting'}
               />
             </div>
-            <button type="submit" className="submit-button">Send Message</button>
+            
+            <button 
+              type="submit" 
+              className={`submit-button ${formStatus === 'submitting' ? 'submitting' : ''}`}
+              disabled={formStatus === 'submitting'}
+            >
+              {formStatus === 'submitting' ? 'Sending...' : 'Send Message'}
+            </button>
           </form>
 
-          {/* Display Guestbook Messages */}
-          {guestbook.length > 0 && (
-            <div className="guestbook-messages">
-              <h3>Messages from our loved ones</h3>
-              {guestbook.map((entry) => (
-                <div key={entry.id} className="guestbook-entry">
-                  <h4>{entry.name}</h4>
-                  <p>{entry.message}</p>
-                </div>
-              ))}
+          {/* Sample messages to show what it looks like */}
+          <div className="guestbook-messages">
+            <h3>Messages from our loved ones</h3>
+            <div className="guestbook-entry">
+              <h4>Emma & James</h4>
+              <p>So excited to celebrate with you both! Can't wait to see you tie the knot. Love you guys! ❤️</p>
             </div>
-          )}
+            <div className="guestbook-entry">
+              <h4>Mom & Dad</h4>
+              <p>We are so proud of you both and can't wait to welcome Michael to the family officially. This is going to be the most beautiful celebration!</p>
+            </div>
+          </div>
         </div>
       </section>
 
